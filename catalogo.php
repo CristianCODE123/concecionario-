@@ -1,5 +1,5 @@
 <?php require_once("cabecera.php");unset($_SESSION["marca"]);?>
-<script>
+<script type ="text/javascript">
         let cabecera = document.getElementById("primary-nav");
         let logo = document.getElementById("logo");
         logo.style.marginTop ="-0.5em";
@@ -7,6 +7,7 @@
         cabecera.style.marginLeft = "11em";
 
         cabecera.style.marginTop = "1em";
+        cabecera.style.marginLeft = "-1em";
 
         let buscar = document.getElementById("buscar");
         let plantilla = document.getElementById("flex-container");
@@ -44,8 +45,8 @@
 
 <div class ="form-div">
 <form action="catalogo.php" method = "POST" >
-      <select class="form-select" aria-label="Default select example" style = "width:100px;height:40px;">
-      <option value= marca>Marca</option>
+      <select class="form-select" name = "selectMarca" aria-label="Default select example" style = "width:100px;height:40px;">
+      <option>Marca</option>
      <?php 
                             foreach($catalogo as $carro){
                             ?>
@@ -56,8 +57,8 @@
                        ?>
 </select>
  <div></div>
-<select class="form-select" aria-label="Default select example"  style = "width:100px;height:40px;">
-<option value= marca>Precio</option>
+<select class="form-select" name = "selectPrecio" aria-label="Default select example"  style = "width:100px;height:40px;">
+<option>Precio</option>
 <?php 
                             foreach($catalogo as $carro){
                             ?>
@@ -69,8 +70,8 @@
 </select>
 <div></div>
 
-<select class="form-select" aria-label="Default select example"  style = "width:120px;height:40px;">
-<option value= marca>Cilindraje</option>
+<select class="form-select" name = "selectCilindraje"aria-label="Default select example"  style = "width:120px;height:40px;">
+<option >Cilindraje</option>
 <?php 
                             foreach($catalogo as $carro){
                             ?>
@@ -82,7 +83,7 @@
   
 </select>
                      
-                         <input type="submit" style = "width:100px;height:40px" value = "Buscar"
+                         <input type="submit" name = "submit2" style = "width:100px;height:40px" value = "Buscar"
                            class="form-control" name="" id="" aria-describedby="helpId" placeholder="">
                         
                        
@@ -98,7 +99,7 @@
       </div>
       
 
-          <div class = "flex-container" style ="margin-left:45.5em">
+          <div class = "flex-container" id = "flex-container"style ="margin-left:45.5em">
                <ul>
                  <?php
                  foreach($catalogo as $carro ){
@@ -134,3 +135,62 @@
       
 </body>
 </html>
+
+<?php
+if(isset($_POST['submit2'])){
+  $marca = $_POST["selectMarca"]."";
+  $precio = $_POST["selectPrecio"]."";
+  $cilindraje = $_POST["selectCilindraje"]."";
+
+  $sentencia2 = $bd->query("select catalogo.idCatalogo,Marca,Modelo,Cilindraje,Precio,Matricula,imagen,Descripcion,opciones_adicionales.idCatalogo,nombre2 
+  from catalogo
+  inner join opciones_adicionales 
+  on catalogo.idCatalogo = opciones_adicionales.idCatalogo where marca = '$marca' and precio = '$precio' and cilindraje = '$cilindraje'");
+  echo $marca.$precio.$cilindraje;
+  $catalogo2 = $sentencia2->fetchAll(PDO::FETCH_OBJ);
+
+echo '<script>
+let container = document.getElementById("flex-container");
+container.remove();
+</script>';
+
+?>
+
+   <div class = "flex-container" style ="margin-left:90em">
+               <ul>
+                 <?php
+                 foreach($catalogo2 as $carro ){
+
+                 
+                 ?>
+                   <li>
+                       <div class = "imagen"> <div class = "imagen">    <img src="<?php echo "imagenesSubidas/".$carro->imagen?>"
+                                                
+                                                width='200' height='200'></div></div>
+                       <div class = "contenido">
+
+                       <div class = "marca-modelo"><?php echo $carro ->Marca." / ".$carro ->Modelo;?></div>
+                       <div class = "precio"><?php echo $carro ->Precio."$"?></div>
+                       <div class = "cc"><?php echo $carro ->Cilindraje?> cc</div>
+                       <div class = "descripcion"><textarea style = "resize:none;border:none;Overflow-y: hidden;
+" name="" id="" cols="65" rows="3" readonly><?php echo $carro ->Descripcion?></textarea></div>
+                       <div class = "boton"><a class="text-success" href="comprarInterfaz.php?documento=<?php echo $carro->idCatalogo;?>"><input type="submit" value = "comprar" style = "margin-left:45em;margin-top:1em;" ></a></td></div>
+
+                       </div>
+                      
+                   </li>
+
+                   <?php
+                 }
+                   ?>
+                   
+               </ul>
+               
+
+          </div>
+
+<?php
+}else{
+  exit();
+}
+?>
